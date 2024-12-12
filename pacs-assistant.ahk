@@ -1,6 +1,8 @@
 #Requires AutoHotkey >=2.0
 #include UIA-v2-1.0.1\Lib\UIA.ahk
 
+
+; Version 1.0
 ; Return true if PowerScribe or PACS viewer is the active window
 pacsActive()
 {
