@@ -64,7 +64,7 @@ F16::
 	Return
 }
 
-
+; Select next field
 F17::
 {
 	WinActivate("PowerScribe")
