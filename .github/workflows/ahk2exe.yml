@@ -1,4 +1,4 @@
-name: Compile executable with ahk2exe
+name: Compile executable with ahk2exe and release if tagged
 
 on: push
 
