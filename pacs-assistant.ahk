@@ -30,6 +30,7 @@ setAttending(x) {
 	Send "{tab}{space}{tab}{Enter}"
 }
 
+; Uses regex to determine the appropriate section queue for a wet read
 checkAttending(haystack) {
     bodyStr := "i)EXAMINATION:[\s]*((CT.*pelvis)|(XR.*abdomen)|(MRCP)|(MRI.*abdomen))"
     chestStr := "i)EXAMINATION:[\s]*((CT.*chest)|(XR.*chest))"
