@@ -13,6 +13,7 @@ jobs:
         uses: benmusson/ahk2exe-action@v1
         with:
           in: pacs-assistant.ahk
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release
         uses: softprops/action-gh-release@v1
