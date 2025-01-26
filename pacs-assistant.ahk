@@ -1,5 +1,6 @@
 #Requires AutoHotkey >=2.0
-#include UIA-v2-1.0.1\Lib\UIA.ahk
+#include UIA-v2\Lib\UIA.ahk
+
 
 
 ; Version 1.0
@@ -21,6 +22,7 @@ sendPs(x)
 	Return
 }
 
+; Set PowerScribe to the active window and change the attending for only this report
 setAttending(x) {
 	WinActivate("PowerScribe")
 	Send "{Alt down}ta{Alt up}"
@@ -30,6 +32,7 @@ setAttending(x) {
 	Send "{tab}{space}{tab}{Enter}"
 }
 
+; Uses regex to determine the appropriate section queue for a wet read
 checkAttending(haystack) {
     bodyStr := "i)EXAMINATION:[\s]*((CT.*pelvis)|(XR.*abdomen)|(MRCP)|(MRI.*abdomen))"
     chestStr := "i)EXAMINATION:[\s]*((CT.*chest)|(XR.*chest))"
@@ -63,7 +66,7 @@ F16::
 	Return
 }
 
-
+; Select next field
 F17::
 {
 	WinActivate("PowerScribe")

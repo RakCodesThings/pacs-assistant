@@ -1,4 +1,4 @@
-name: Compile executable with ahk2exe
+name: Compile executable with ahk2exe and release if tagged
 
 on: push
 
@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
 
       - name: Ahk2Exe
         uses: benmusson/ahk2exe-action@v1
@@ -20,5 +22,3 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: pacs-assistant.exe
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
