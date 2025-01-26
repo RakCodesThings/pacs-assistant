@@ -14,8 +14,7 @@ jobs:
       - name: Ahk2Exe
         uses: benmusson/ahk2exe-action@v1
         with:
-          in: main.ahk
-          out: pacs-assistant.exe
+          in: pacs-assistant.ahk
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release
