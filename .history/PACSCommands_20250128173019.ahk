@@ -166,28 +166,12 @@ wetRead() {
 
 toggleWindow(winName) {
     if WinExist(winName) {
-        ; Get all windows
-        allWindows := WinGetList()
-        
-        ; Get the target window's ID
-        targetID := WinGetID(winName)
-        
-        ; Find target window's position in the z-order
-        targetIndex := -1
-        Loop allWindows.Length {
-            if (allWindows[A_Index] = targetID) {
-                targetIndex := A_Index
-                break
-            }
-        }
-        
-        ; If window was found and there are windows above it (lower index = higher z-order)
-        if (targetIndex > 1) {
-            ; Other windows exist above target, so bring it to front
-            WinActivate(winName)
-        } else {
-            ; Target is already topmost, so send it to back
+        if WinActive(winName) {
+            ; Window is active, send it to back
             WinMoveBottom(winName)
+        } else {
+            ; Window is not active, bring it to front
+            WinActivate(winName)
         }
     }
 }

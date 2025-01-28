@@ -166,27 +166,17 @@ wetRead() {
 
 toggleWindow(winName) {
     if WinExist(winName) {
-        ; Get all windows
-        allWindows := WinGetList()
+        ; Get the window ID of PowerScribe
+        winID := WinGetID(winName)
         
-        ; Get the target window's ID
-        targetID := WinGetID(winName)
+        ; Check if any window is above PowerScribe
+        winList := WinGetList(,, winID)
         
-        ; Find target window's position in the z-order
-        targetIndex := -1
-        Loop allWindows.Length {
-            if (allWindows[A_Index] = targetID) {
-                targetIndex := A_Index
-                break
-            }
-        }
-        
-        ; If window was found and there are windows above it (lower index = higher z-order)
-        if (targetIndex > 1) {
-            ; Other windows exist above target, so bring it to front
+        if winList.Length > 0 {
+            ; Other windows exist above PowerScribe, so bring it to front
             WinActivate(winName)
         } else {
-            ; Target is already topmost, so send it to back
+            ; PowerScribe is already topmost, so send it to back
             WinMoveBottom(winName)
         }
     }
