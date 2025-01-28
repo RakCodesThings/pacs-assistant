@@ -1,0 +1,5 @@
+# Profile directory containing user-specific keybind profiles
+profiles/
+
+# Config file containing user settings
+config.ini 
