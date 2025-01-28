@@ -156,7 +156,7 @@ class Settings {
             .OnEvent("Click", (*) => settingsGui.Destroy())
         
         ; Add bottom margin
-        y += margin * 2
+        y += buttonWidth + margin
         settingsGui.Add("Text", "x" margin " y" y " w0 h0")  ; Invisible control to enforce bottom margin
         
         settingsGui.Show()

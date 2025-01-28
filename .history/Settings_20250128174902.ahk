@@ -74,90 +74,58 @@ class Settings {
     
     ; Show settings dialog
     static ShowDialog() {
-        ; Create GUI with proper margins
-        settingsGui := Gui("+AlwaysOnTop +MinSize320", "PACS Assistant - Settings")
+        settingsGui := Gui("+AlwaysOnTop", "PACS Assistant - Settings")
         settingsGui.SetFont("s10", "Segoe UI")
         
-        ; Constants for layout
-        margin := 20  ; Margin from window edge
-        width := 320  ; Total window width
-        contentWidth := width - (margin * 2)  ; Width of content area
-        
         ; Create checkboxes for each setting
-        y := margin
+        y := 10
         checkboxes := Map()
         
         ; Updates section
-        settingsGui.Add("GroupBox", "x" margin " y" y " w" contentWidth " h80", "Updates")
-        checkboxes["AutoUpdate"] := settingsGui.Add("Checkbox", "x" margin+10 " y" y+25, "Automatically check for updates")
-        checkboxes["SkipBetaVersions"] := settingsGui.Add("Checkbox", "x" margin+10 " y+10", "Skip beta versions")
+        settingsGui.Add("GroupBox", "x10 y" y " w300 h80", "Updates")
+        checkboxes["AutoUpdate"] := settingsGui.Add("Checkbox", "x20 y" (y+20), "Automatically check for updates")
+        checkboxes["SkipBetaVersions"] := settingsGui.Add("Checkbox", "x20 y+10", "Skip beta versions")
         
         ; PACS section
-        y += 100  ; Consistent spacing between sections
-        settingsGui.Add("GroupBox", "x" margin " y" y " w" contentWidth " h110", "PACS")  ; Increased height to 110
-        checkboxes["AutoRefreshPACS"] := settingsGui.Add("Checkbox", "x" margin+10 " y" y+25, "Auto refresh PACS")
-        settingsGui.Add("Text", "x" margin+10 " y+15", "Refresh interval (seconds):")
-        refreshIntervalEdit := settingsGui.Add("Edit", "x" margin+10 " y+5 w60 Number", this.Get("RefreshInterval"))
+        y += 90
+        settingsGui.Add("GroupBox", "x10 y" y " w300 h100", "PACS")
+        checkboxes["AutoRefreshPACS"] := settingsGui.Add("Checkbox", "x20 y" (y+20), "Auto refresh PACS")
+        settingsGui.Add("Text", "x20 y+10", "Refresh interval (seconds):")
+        refreshIntervalEdit := settingsGui.Add("Edit", "x20 y+5 w60 Number", this.Get("RefreshInterval"))
         
         ; Notifications section
-        y += 130  ; Increased spacing between sections
-        notificationsY := y
-        
-        ; Calculate height for notifications section based on its contents:
-        ; - 25px top padding
-        ; - 2 checkboxes (25px each + 10px spacing) = 60px
-        ; - Alert Sound (20px label + 5px + 25px dropdown) = 50px
-        ; - Custom Sound (20px label + 5px + 25px edit/browse) = 50px
-        ; - 15px spacing
-        ; - Test button (25px)
-        ; - 25px bottom padding
-        notificationsHeight := 250  ; Total height needed
-        
-        ; Add the notifications groupbox first
-        settingsGui.Add("GroupBox", "x" margin " y" notificationsY " w" contentWidth " h" notificationsHeight, "Notifications")
-        
-        ; Add all notification controls with consistent spacing
-        y := notificationsY  ; Reset y to start of notifications section
-        checkboxes["AudioAlertNewCase"] := settingsGui.Add("Checkbox", "x" margin+10 " y" y+25, "Play sound on new case")
-        checkboxes["MessageBoxNewCase"] := settingsGui.Add("Checkbox", "x" margin+10 " y+10", "Show message box on new case")
+        y += 110
+        settingsGui.Add("GroupBox", "x10 y" y " w300 h180", "Notifications")
+        checkboxes["AudioAlertNewCase"] := settingsGui.Add("Checkbox", "x20 y" (y+20), "Play sound on new case")
+        checkboxes["MessageBoxNewCase"] := settingsGui.Add("Checkbox", "x20 y+10", "Show message box on new case")
         
         ; Sound selection
-        settingsGui.Add("Text", "x" margin+10 " y+15", "Alert Sound:")
-        soundDropDown := settingsGui.Add("DropDownList", "x" margin+10 " y+5 w" contentWidth-20, this.systemSounds)
+        settingsGui.Add("Text", "x20 y+10", "Alert Sound:")
+        soundDropDown := settingsGui.Add("DropDownList", "x20 y+5 w200", this.systemSounds)
         soundDropDown.Value := this.FindSoundIndex(this.Get("AlertSound"))
         
         ; Custom sound file section
-        settingsGui.Add("Text", "x" margin+10 " y+15", "Custom Sound File:")
-        customSoundEdit := settingsGui.Add("Edit", "x" margin+10 " y+5 w" contentWidth-90 " ReadOnly", this.Get("CustomSoundFile"))
+        settingsGui.Add("Text", "x20 y+10", "Custom Sound File:")
+        customSoundEdit := settingsGui.Add("Edit", "x20 y+5 w200 ReadOnly", this.Get("CustomSoundFile"))
         settingsGui.Add("Button", "x+5 yp w60", "Browse").OnEvent("Click", (*) => this.BrowseSound(customSoundEdit))
-        
-        ; Test button with adjusted spacing
-        settingsGui.Add("Button", "x" margin+10 " y+10 w60", "Test")  ; Changed from y+15 to y+10
-            .OnEvent("Click", (*) => this.TestSound(soundDropDown.Text, customSoundEdit.Text))
+        settingsGui.Add("Button", "x20 y+5 w60", "Test").OnEvent("Click", (*) => this.TestSound(soundDropDown.Text, customSoundEdit.Text))
         
         ; Set current values
         for setting, checkbox in checkboxes {
             checkbox.Value := this.Get(setting)
         }
         
-        ; Add Save and Cancel buttons below the notifications section
-        y := notificationsY + notificationsHeight + 20  ; Consistent 20px spacing after section
-        
         ; Add Save and Cancel buttons in a centered position
+        y += 190
         buttonWidth := 80
         spacing := 10
-        totalButtonWidth := (buttonWidth * 2) + spacing
-        startX := margin + (contentWidth - totalButtonWidth) // 2
+        totalWidth := (buttonWidth * 2) + spacing
+        startX := 10 + (300 - totalWidth) // 2  ; Center the buttons within the 300px wide GUI
         
-        ; Add buttons with proper alignment
         settingsGui.Add("Button", "x" startX " y" y " w" buttonWidth, "Save")
             .OnEvent("Click", (*) => this.SaveSettings(checkboxes, refreshIntervalEdit, soundDropDown, customSoundEdit, settingsGui))
         settingsGui.Add("Button", "x+" spacing " yp w" buttonWidth, "Cancel")
             .OnEvent("Click", (*) => settingsGui.Destroy())
-        
-        ; Add bottom margin
-        y += margin * 2
-        settingsGui.Add("Text", "x" margin " y" y " w0 h0")  ; Invisible control to enforce bottom margin
         
         settingsGui.Show()
     }

@@ -94,24 +94,22 @@ class Settings {
         
         ; PACS section
         y += 100  ; Consistent spacing between sections
-        settingsGui.Add("GroupBox", "x" margin " y" y " w" contentWidth " h110", "PACS")  ; Increased height to 110
+        settingsGui.Add("GroupBox", "x" margin " y" y " w" contentWidth " h100", "PACS")
         checkboxes["AutoRefreshPACS"] := settingsGui.Add("Checkbox", "x" margin+10 " y" y+25, "Auto refresh PACS")
         settingsGui.Add("Text", "x" margin+10 " y+15", "Refresh interval (seconds):")
         refreshIntervalEdit := settingsGui.Add("Edit", "x" margin+10 " y+5 w60 Number", this.Get("RefreshInterval"))
         
         ; Notifications section
-        y += 130  ; Increased spacing between sections
+        y += 120  ; Consistent spacing between sections
         notificationsY := y
         
         ; Calculate height for notifications section based on its contents:
-        ; - 25px top padding
         ; - 2 checkboxes (25px each + 10px spacing) = 60px
-        ; - Alert Sound (20px label + 5px + 25px dropdown) = 50px
-        ; - Custom Sound (20px label + 5px + 25px edit/browse) = 50px
-        ; - 15px spacing
+        ; - Alert Sound label + dropdown (20px + 5px + 25px) = 50px
+        ; - Custom Sound label + edit + browse (20px + 5px + 25px) = 50px
         ; - Test button (25px)
-        ; - 25px bottom padding
-        notificationsHeight := 250  ; Total height needed
+        ; - 25px padding at top and bottom
+        notificationsHeight := 235  ; Increased height to properly fit all controls
         
         ; Add the notifications groupbox first
         settingsGui.Add("GroupBox", "x" margin " y" notificationsY " w" contentWidth " h" notificationsHeight, "Notifications")
@@ -130,9 +128,7 @@ class Settings {
         settingsGui.Add("Text", "x" margin+10 " y+15", "Custom Sound File:")
         customSoundEdit := settingsGui.Add("Edit", "x" margin+10 " y+5 w" contentWidth-90 " ReadOnly", this.Get("CustomSoundFile"))
         settingsGui.Add("Button", "x+5 yp w60", "Browse").OnEvent("Click", (*) => this.BrowseSound(customSoundEdit))
-        
-        ; Test button with adjusted spacing
-        settingsGui.Add("Button", "x" margin+10 " y+10 w60", "Test")  ; Changed from y+15 to y+10
+        settingsGui.Add("Button", "x" margin+10 " y+15 w60", "Test")
             .OnEvent("Click", (*) => this.TestSound(soundDropDown.Text, customSoundEdit.Text))
         
         ; Set current values
@@ -156,7 +152,7 @@ class Settings {
             .OnEvent("Click", (*) => settingsGui.Destroy())
         
         ; Add bottom margin
-        y += margin * 2
+        y += buttonWidth + margin
         settingsGui.Add("Text", "x" margin " y" y " w0 h0")  ; Invisible control to enforce bottom margin
         
         settingsGui.Show()

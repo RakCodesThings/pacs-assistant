@@ -131,8 +131,8 @@ class Settings {
         customSoundEdit := settingsGui.Add("Edit", "x" margin+10 " y+5 w" contentWidth-90 " ReadOnly", this.Get("CustomSoundFile"))
         settingsGui.Add("Button", "x+5 yp w60", "Browse").OnEvent("Click", (*) => this.BrowseSound(customSoundEdit))
         
-        ; Test button with adjusted spacing
-        settingsGui.Add("Button", "x" margin+10 " y+10 w60", "Test")  ; Changed from y+15 to y+10
+        ; Test button with more space from bottom
+        settingsGui.Add("Button", "x" margin+10 " y+15 w60", "Test")
             .OnEvent("Click", (*) => this.TestSound(soundDropDown.Text, customSoundEdit.Text))
         
         ; Set current values
@@ -156,7 +156,7 @@ class Settings {
             .OnEvent("Click", (*) => settingsGui.Destroy())
         
         ; Add bottom margin
-        y += margin * 2
+        y += buttonWidth + margin
         settingsGui.Add("Text", "x" margin " y" y " w0 h0")  ; Invisible control to enforce bottom margin
         
         settingsGui.Show()
