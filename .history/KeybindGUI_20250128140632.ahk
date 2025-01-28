@@ -253,9 +253,6 @@ class KeybindGUI {
             }
         }
         
-        ; First disable all existing hotkeys
-        HotkeyManager.DisableAllHotkeys()
-        
         ; Update profile
         ProfileManager.profiles[ProfileManager.currentProfile].binds[funcName] := newBind
         
@@ -276,7 +273,6 @@ class KeybindGUI {
             this.StopListening()
         }
         
-        ; Reapply all binds
         this.ApplyBinds()
     }
 

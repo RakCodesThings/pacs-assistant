@@ -2,7 +2,7 @@
 #Include Settings.ahk
 
 class UpdateChecker {
-    static currentVersion := "v2.0b2"  ; Match this with your current version
+    static currentVersion := "v2.0b"  ; Match this with your current version
     static repoUrl := "https://github.com/rakan959/pacs-assistant"
     static apiUrl := "https://api.github.com/repos/rakan959/pacs-assistant/releases/latest"
     static updateTimer := 0

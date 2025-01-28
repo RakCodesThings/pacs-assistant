@@ -2,58 +2,9 @@
 #Include Settings.ahk
 
 class UpdateChecker {
-    static currentVersion := "v2.0b2"  ; Match this with your current version
+    static currentVersion := "v2.0b"  ; Match this with your current version
     static repoUrl := "https://github.com/rakan959/pacs-assistant"
     static apiUrl := "https://api.github.com/repos/rakan959/pacs-assistant/releases/latest"
-    static updateTimer := 0
-    
-    static Start() {
-        ; Check for updates immediately if enabled
-        if Settings.Get("AutoUpdate") {
-            updateInfo := this.CheckForUpdates()
-            if updateInfo.hasUpdate {
-                this.ShowUpdateDialog()
-            }
-        }
-        
-        ; Set up hourly check if auto-update is enabled
-        if Settings.Get("AutoUpdate") {
-            this.StartAutoCheck()
-        }
-    }
-    
-    static StartAutoCheck() {
-        ; Clear any existing timer
-        if this.updateTimer {
-            SetTimer(this.updateTimer, 0)
-            this.updateTimer := 0
-        }
-        
-        ; Set up new timer if auto-update is enabled
-        if Settings.Get("AutoUpdate") {
-            this.updateTimer := ObjBindMethod(this, "AutoCheck")
-            SetTimer(this.updateTimer, 3600000)  ; Check every hour (3600000 ms)
-        }
-    }
-    
-    static StopAutoCheck() {
-        if this.updateTimer {
-            SetTimer(this.updateTimer, 0)
-            this.updateTimer := 0
-        }
-    }
-    
-    static AutoCheck() {
-        updateInfo := this.CheckForUpdates()
-        if updateInfo.hasUpdate {
-            this.ShowUpdateDialog()
-        }
-    }
-    
-    static OnSettingsChanged() {
-        ; Restart auto-check with new settings
-        this.StartAutoCheck()
-    }
     
     ; Parse version string into components
     static ParseVersion(version) {
