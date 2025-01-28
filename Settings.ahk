@@ -3,7 +3,7 @@
 class Settings {
     static settingsFile := A_ScriptDir "\settings.ini"
     static defaultSettings := Map(
-        "AutoUpdate", true,  ; Changed to true by default
+        "AutoUpdate", true,
         "SkipBetaVersions", true,
         "AutoRefreshPACS", false,
         "RefreshInterval", 60,

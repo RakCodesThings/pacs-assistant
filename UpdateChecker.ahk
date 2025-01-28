@@ -2,10 +2,12 @@
 #Include Settings.ahk
 
 class UpdateChecker {
-    static currentVersion := "v2.0b2"  ; Match this with your current version
+    static currentVersion := "v2.1"  ; Match this with your current version
     static repoUrl := "https://github.com/rakan959/pacs-assistant"
     static apiUrl := "https://api.github.com/repos/rakan959/pacs-assistant/releases/latest"
     static updateTimer := 0
+    static skippedVersion := ""  ; Track which version the user chose to skip
+    static lastRemindTime := 0   ; Track when the user last clicked "Remind Me Later"
     
     static Start() {
         ; Check for updates immediately if enabled
@@ -26,7 +28,7 @@ class UpdateChecker {
         ; Clear any existing timer
         if this.updateTimer {
             SetTimer(this.updateTimer, 0)
-            this.updateTimer := 0
+            this.refreshTimer := 0
         }
         
         ; Set up new timer if auto-update is enabled
@@ -62,14 +64,23 @@ class UpdateChecker {
         
         ; Parse version components
         parts := StrSplit(version, ".")
-        major := Integer(parts[1])
-        minor := parts.Length >= 2 ? Integer(parts[2]) : 0
+        try {
+            major := Integer(RegExReplace(parts[1], "b.*$"))  ; Remove beta suffix before converting
+            minor := parts.Length >= 2 ? Integer(RegExReplace(RegExReplace(parts[2], "b.*$"), "\D+")) : 0
+        } catch as err {
+            major := 0
+            minor := 0
+        }
         
         ; Handle beta versions (e.g., "2.0b", "2.0b2")
         if (RegExMatch(version, "b\d*$")) {
             betaMatch := RegExMatch(version, "b(\d*)", &betaNum)
             isBeta := true
-            betaVersion := betaNum[1] != "" ? Integer(betaNum[1]) : 1
+            try {
+                betaVersion := betaNum[1] != "" ? Integer(betaNum[1]) : 1
+            } catch as err {
+                betaVersion := 1
+            }
         } else {
             isBeta := false
             betaVersion := 0
@@ -88,39 +99,57 @@ class UpdateChecker {
         v1Info := this.ParseVersion(v1)
         v2Info := this.ParseVersion(v2)
         
-        ; Compare major versions
+        ; Compare major versions first
         if (v1Info.major != v2Info.major)
             return v1Info.major < v2Info.major ? -1 : 1
             
-        ; Compare minor versions
+        ; Compare minor versions next
         if (v1Info.minor != v2Info.minor)
             return v1Info.minor < v2Info.minor ? -1 : 1
             
-        ; If one is beta and other is not
+        ; If we get here, the base version numbers are the same
+        ; For beta versions, we consider them older than their regular counterparts
+        ; e.g., v2.0b is older than v2.0
         if (v1Info.isBeta && !v2Info.isBeta)
-            return -1  ; Beta is older than release
+            return -1  ; v1 is beta, v2 is regular, so v1 is older
         if (!v1Info.isBeta && v2Info.isBeta)
-            return 1   ; Release is newer than beta
+            return 1   ; v1 is regular, v2 is beta, so v1 is newer
             
         ; If both are beta, compare beta versions
-        if (v1Info.isBeta && v2Info.isBeta)
-            return v1Info.betaVersion < v2Info.betaVersion ? -1 : (v1Info.betaVersion > v2Info.betaVersion ? 1 : 0)
-            
-        ; Versions are equal
+        if (v1Info.isBeta && v2Info.isBeta) {
+            return v1Info.betaVersion < v2Info.betaVersion ? -1 : 
+                   (v1Info.betaVersion > v2Info.betaVersion ? 1 : 0)
+        }
+        
+        ; If neither is beta and we got here, versions are equal
         return 0
     }
     
     static CheckForUpdates() {
         ; Download the latest release info
         try {
+            ; Set up the HTTP request with headers for GitHub API
             whr := ComObject("WinHttp.WinHttpRequest.5.1")
             whr.Open("GET", this.apiUrl, true)
+            whr.SetRequestHeader("User-Agent", "PACS-Assistant-Update-Checker")
             whr.Send()
             whr.WaitForResponse()
             
             if (whr.Status = 200) {
-                response := Jsons.Load(whr.ResponseText)
-                latestVersion := response.tag_name
+                ; Parse the JSON response
+                responseText := whr.ResponseText
+                
+                ; Extract the required fields using RegEx since we know the format
+                tagMatch := RegExMatch(responseText, '"tag_name"\s*:\s*"(v[^"]+)"', &tag)
+                bodyMatch := RegExMatch(responseText, '"body"\s*:\s*"([^"]*)"', &body)
+                assetsMatch := RegExMatch(responseText, '"browser_download_url"\s*:\s*"([^"]+\.exe)"', &asset)
+                
+                if (!tagMatch)
+                    return { hasUpdate: false }
+                    
+                latestVersion := tag[1]
+                releaseNotes := bodyMatch ? RegExReplace(RegExReplace(body[1], "\\r\\n", "`n"), "\\n", "`n") : "No release notes available."
+                downloadUrl := assetsMatch ? asset[1] : ""
                 
                 ; Skip beta versions if enabled in settings
                 if (Settings.Get("SkipBetaVersions")) {
@@ -129,17 +158,18 @@ class UpdateChecker {
                         return { hasUpdate: false }
                 }
                 
-                ; Compare versions using comparison logic
-                if (this.CompareVersions(this.currentVersion, latestVersion) < 0) {
-                    ; Find the .exe asset in the release
-                    downloadUrl := ""
-                    for asset in response.assets {
-                        if (InStr(asset.name, ".exe")) {
-                            downloadUrl := asset.browser_download_url
-                            break
-                        }
-                    }
+                ; Check if user chose to skip this version
+                if (latestVersion = this.skippedVersion)
+                    return { hasUpdate: false }
                     
+                ; Check if we should wait before reminding again (4 hours)
+                if (this.lastRemindTime && (A_TickCount - this.lastRemindTime) < 14400000)
+                    return { hasUpdate: false }
+                
+                ; Compare versions using comparison logic
+                compareResult := this.CompareVersions(this.currentVersion, latestVersion)
+                
+                if (compareResult < 0) {
                     if (downloadUrl = "")
                         return { hasUpdate: false }
                         
@@ -148,10 +178,12 @@ class UpdateChecker {
                         currentVersion: this.currentVersion,
                         latestVersion: latestVersion,
                         downloadUrl: downloadUrl,
-                        releaseNotes: response.body
+                        releaseNotes: releaseNotes
                     }
                 }
             }
+        } catch as err {
+            MsgBox("Error checking for updates: " err.Message, "Update Check Failed", "Icon!")
         }
         return { hasUpdate: false }
     }
@@ -185,8 +217,14 @@ class UpdateChecker {
         ; Buttons
         buttonGroup := updateGui.Add("GroupBox", "y+15 w400 h50")
         updateGui.Add("Button", "xp+10 yp+15 w120", "Update Now").OnEvent("Click", (*) => this.PerformUpdate(updateInfo.downloadUrl, updateGui))
-        updateGui.Add("Button", "x+10 w120", "Remind Me Later").OnEvent("Click", (*) => updateGui.Destroy())
-        updateGui.Add("Button", "x+10 w120", "Skip This Version").OnEvent("Click", (*) => updateGui.Destroy())
+        updateGui.Add("Button", "x+10 w120", "Remind Me Later").OnEvent("Click", (*) => (
+            this.lastRemindTime := A_TickCount,  ; Set the remind time
+            updateGui.Destroy()
+        ))
+        updateGui.Add("Button", "x+10 w120", "Skip This Version").OnEvent("Click", (*) => (
+            this.skippedVersion := updateInfo.latestVersion,  ; Set the skipped version
+            updateGui.Destroy()
+        ))
         
         ; Save settings when closing
         updateGui.OnEvent("Close", (*) => (
