@@ -6,61 +6,6 @@ class UpdateChecker {
     static apiUrl := "https://api.github.com/repos/rakan959/pacs-assistant/releases/latest"
     static settingsFile := A_ScriptDir "\settings.ini"
     
-    ; Parse version string into components
-    static ParseVersion(version) {
-        ; Remove 'v' prefix if present
-        version := RegExReplace(version, "^v", "")
-        
-        ; Parse version components
-        parts := StrSplit(version, ".")
-        major := Integer(parts[1])
-        minor := parts.Length >= 2 ? Integer(parts[2]) : 0
-        
-        ; Handle beta versions (e.g., "2.0b", "2.0b2")
-        if (RegExMatch(version, "b\d*$")) {
-            betaMatch := RegExMatch(version, "b(\d*)", &betaNum)
-            isBeta := true
-            betaVersion := betaNum[1] != "" ? Integer(betaNum[1]) : 1
-        } else {
-            isBeta := false
-            betaVersion := 0
-        }
-        
-        return {
-            major: major,
-            minor: minor,
-            isBeta: isBeta,
-            betaVersion: betaVersion
-        }
-    }
-    
-    ; Compare two version strings
-    static CompareVersions(v1, v2) {
-        v1Info := this.ParseVersion(v1)
-        v2Info := this.ParseVersion(v2)
-        
-        ; Compare major versions
-        if (v1Info.major != v2Info.major)
-            return v1Info.major < v2Info.major ? -1 : 1
-            
-        ; Compare minor versions
-        if (v1Info.minor != v2Info.minor)
-            return v1Info.minor < v2Info.minor ? -1 : 1
-            
-        ; If one is beta and other is not
-        if (v1Info.isBeta && !v2Info.isBeta)
-            return -1  ; Beta is older than release
-        if (!v1Info.isBeta && v2Info.isBeta)
-            return 1   ; Release is newer than beta
-            
-        ; If both are beta, compare beta versions
-        if (v1Info.isBeta && v2Info.isBeta)
-            return v1Info.betaVersion < v2Info.betaVersion ? -1 : (v1Info.betaVersion > v2Info.betaVersion ? 1 : 0)
-            
-        ; Versions are equal
-        return 0
-    }
-    
     static __New() {
         if !FileExist(this.settingsFile)
             this.SaveSettings(false)  ; Default to manual updates
@@ -94,8 +39,8 @@ class UpdateChecker {
                 response := Jsons.Load(whr.ResponseText)
                 latestVersion := response.tag_name
                 
-                ; Compare versions using new comparison logic
-                if (this.CompareVersions(this.currentVersion, latestVersion) < 0) {
+                ; Compare versions
+                if (latestVersion != this.currentVersion) {
                     ; Find the .exe asset in the release
                     downloadUrl := ""
                     for asset in response.assets {
