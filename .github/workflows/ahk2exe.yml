@@ -16,6 +16,7 @@ jobs:
         with:
           in: main.ahk
           out: pacs-assistant.exe
+          compression: none
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release
