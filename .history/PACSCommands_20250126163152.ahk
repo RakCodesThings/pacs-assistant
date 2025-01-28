@@ -9,7 +9,7 @@ class PACSCommands {
         "Open/Force Restart PACS", (*) => restartPACS(),
         "Paste Wet Read", (*) => wetRead(),
         "Toggle PowerScribe Window", (*) => toggleWindow("PowerScribe"),
-        "Toggle EPIC Window", (*) => toggleWindow("Hyperspace")
+        "Toggle EPIC Window", (*) => toggleWindow("EPIC")
     )
 
     static CreateCustomKeybind(keys, targetWindow := "") {
