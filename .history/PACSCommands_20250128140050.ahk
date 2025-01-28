@@ -166,7 +166,8 @@ toggleWindow(winName) {
         winID := WinGetID(winName)
         
         ; Check if any window is above PowerScribe
-        winList := WinGetList(,, winID)
+        winList := []  ; Initialize the array first
+        WinGetList(,, winID,, &winList)  ; Pass the array by reference correctly
         
         if winList.Length > 0 {
             ; Other windows exist above PowerScribe, so bring it to front
