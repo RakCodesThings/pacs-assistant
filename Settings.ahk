@@ -20,7 +20,6 @@ class Settings {
         "Exclamation",      ; Warning
         "Hand",             ; Error
         "Question",         ; Question
-        "Notification",     ; Windows notification
         "Custom File"       ; Option to use custom file
     ]
     
@@ -187,20 +186,19 @@ class Settings {
                 MsgBox("Error playing custom sound file.", "Error", "Icon!")
             }
         } else {
-            SoundPlay("*" this.GetSystemSoundValue(selectedSound))
+            SoundPlay(this.GetSystemSoundValue(selectedSound))
         }
     }
     
     ; Get system sound value
     static GetSystemSoundValue(sound) {
         switch sound {
-            case "Default": return -1
-            case "Asterisk": return 1
-            case "Exclamation": return 2
-            case "Hand": return 3
-            case "Question": return 4
-            case "Notification": return 5
-            default: return -1
+            case "Default": return "*-1"   ; Default beep
+            case "Asterisk": return "*64"
+            case "Exclamation": return "*48"
+            case "Hand": return "*16"
+            case "Question": return "*32"
+            default: return "*-1"
         }
     }
     
