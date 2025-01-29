@@ -31,10 +31,10 @@ PACS Assistant is a helpful tool designed to make your radiology workflow smooth
 
 ## 🚀 Getting Started
 
-1. **Download & Install**
+1. **Download**
    - Download the latest version from the releases page
    - Place the file in your preferred directory (profiles will be stored here)
-   - Run pacs-assistant.exe
+   - Run pacs-assistant.exe - no installation required!
 
 2. **Initial Setup**
    - Create a profile when first launching
