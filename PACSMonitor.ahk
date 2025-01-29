@@ -58,7 +58,12 @@ class PACSMonitor {
             ; Click refresh button
             msedgeEl := UIA.ElementFromHandle("Explorer Portal ahk_exe msedge.exe")
             msedgeEl.ElementFromPath("Y/YYY/YqYYYVRvrRK").ControlClick()
-            
+
+            ; Restore the previously active window
+            if IsSet(previousWindow) && previousWindow && WinExist(previousWindow) {
+                WinActivate("ahk_id " previousWindow)
+            }
+
             ; Wait a moment for the refresh to complete
             Sleep(1000)
             
@@ -104,17 +109,12 @@ class PACSMonitor {
                 this.AlertNewCases(newStudies)
             }
             
-            ; Restore the previously active window
-            if previousWindow {
-                WinActivate("ahk_id " previousWindow)
-            }
-            
         } catch as err {
             ; Silent fail - we don't want to interrupt the user with error messages
             ; during background monitoring
             
             ; Still try to restore the active window if we have it
-            if IsSet(previousWindow) && previousWindow {
+            if IsSet(previousWindow) && previousWindow && WinExist(previousWindow) {
                 WinActivate("ahk_id " previousWindow)
             }
         }
