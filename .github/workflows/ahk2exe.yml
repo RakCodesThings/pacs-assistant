@@ -4,7 +4,7 @@ on: push
 
 jobs:
   ahk2exe:
-    runs-on: windows-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
