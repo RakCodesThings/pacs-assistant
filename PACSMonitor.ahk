@@ -52,6 +52,11 @@ class PACSMonitor {
                 return  ; Portal not open, skip this check
             }
             
+            ; Skip refresh if Explorer Portal is the active window
+            if WinActive("Explorer Portal ahk_exe msedge.exe") {
+                return  ; Don't refresh when user is actively using the portal
+            }
+            
             ; Store the currently active window
             previousWindow := WinExist("A")
             
