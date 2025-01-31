@@ -86,26 +86,36 @@ checkAttending(haystack) {
 }
 
 restartPACS() {
+    anyClosed := false
 
-	closeKill("Command - ")
+    ; Helper function to track if anything was closed
+    closeKillAndTrack(x) {
+        if ProcessExist(x) {
+            ProcessClose(x)
+            anyClosed := true
+        } else if WinExist(x) {
+            WinKill(x)
+            if WinExist(x) {
+                ProcessClose(WinGetProcessName(x))
+            }
+            anyClosed := true
+        }
+    }
 
-	closeKill("WinDbg:")
+    closeKillAndTrack("Command - ")
+    closeKillAndTrack("WinDbg:")
+    closeKillAndTrack("Vue PACS")
+    closeKillAndTrack("Explorer Portal")
+    closeKillAndTrack("PowerScribe")
+    closeKillAndTrack("Hyperspace")
+    closeKillAndTrack("mp.exe")
+    closeKillAndTrack("NativeBridge.exe")
 
-	closeKill("Vue PACS")
-
-	closeKill("Explorer Portal")
-
-	closeKill("PowerScribe")
-
-	closeKill("Hyperspace")
-
-	closeKill("mp.exe")
-
-	closeKill("NativeBridge.exe")
-
-	Sleep 500
+    if anyClosed {
+        Sleep(500)
+    }
  
-	found := False
+    found := False
 
     Loop Files, A_DesktopCommon "\*"
     {
