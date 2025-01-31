@@ -13,7 +13,9 @@ class PACSCommands {
         "Open/Force Restart PACS", (*) => restartPACS(),
         "Paste Wet Read", (*) => wetRead(),
         "Toggle PowerScribe Window", (*) => toggleWindow("PowerScribe"),
-        "Toggle EPIC Window", (*) => toggleWindow("Hyperspace")
+        "Toggle EPIC Window", (*) => toggleWindow("Hyperspace"),
+        "Next Series", (*) => (WinActivate("Vue PACS Client"), Send("{Right}")),
+        "Previous Series", (*) => (WinActivate("Vue PACS Client"), Send("{Left}"))
     )
 
     static CreateCustomKeybind(keys, targetWindow := "") {
@@ -87,7 +89,7 @@ restartPACS() {
 
 	closeKill("Command - ")
 
-	closeKill("WinDgb:")
+	closeKill("WinDbg:")
 
 	closeKill("Vue PACS")
 
